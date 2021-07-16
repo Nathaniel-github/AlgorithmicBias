@@ -1,18 +1,17 @@
 import face_recognition
+import pickle
+import pandas as pd
+from tqdm import tqdm
 
-picture_of_me = face_recognition.load_image_file("me.jpg")
-my_face_encoding = face_recognition.face_encodings(picture_of_me)[0]
+df = pd.read_csv("labels_utf8.csv")
+encodings = []
+file_name = "encodings.pkl"
+for name in tqdm(df['ID']):
+    encodings.append(face_recognition.face_encodings(face_recognition.load_image_file(f"mugshots/front/front/{name}"))[0])
 
-# my_face_encoding now contains a universal 'encoding' of my facial features that can be compared to any other picture of a face!
+print("Images encoded")
+print(f"Total encodings: {len(encodings)}")
 
-unknown_picture = face_recognition.load_image_file("unknown.jpg")
-unknown_face_encoding = face_recognition.face_encodings(unknown_picture)[0]
-
-# Now we can see the two face encodings are of the same person with `compare_faces`!
-
-results = face_recognition.compare_faces([my_face_encoding], unknown_face_encoding)
-
-if results[0] == True:
-    print("It's a picture of me!")
-else:
-    print("It's not a picture of me!")
+with open(file_name, 'wb+') as f:
+    pickle.dump(encodings, f)
+    print(f"File saved as: {file_name}")
