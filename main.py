@@ -7,7 +7,11 @@ df = pd.read_csv("labels_utf8.csv")
 encodings = []
 file_name = "encodings.pkl"
 for name in tqdm(df['ID']):
-    encodings.append(face_recognition.face_encodings(face_recognition.load_image_file(f"mugshots/front/front/{name}"))[0])
+    try:
+        encodings.append(face_recognition.face_encodings(face_recognition.load_image_file(f"mugshots/front/front/{name}"), num_jitters=5, model='large')[0])
+    except Exception as e:
+        print(f"Failed on {name}")
+        print(f"Race of person in image failure: {df.loc[df['ID'] == name]['Race']}")
 
 print("Images encoded")
 print(f"Total encodings: {len(encodings)}")
